@@ -1,0 +1,88 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Sharing Server</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .ip-list {
+            margin-top: 20px;
+        }
+        .upload-section {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>File Sharing Server</h1>
+
+    <form method="post">
+        <div class="form-group">
+            <label for="port">Port:</label>
+            <input type="number" id="port" name="port" value="{{.Port}}" required>
+        </div>
+        <div class="form-group">
+            <label for="directory">Source Directory:</label>
+            <input type="text" id="directory" name="directory" value="{{.SourceDir}}" required>
+        </div>
+        <button type="submit">Update Settings</button>
+    </form>
+
+    <div class="ip-list">
+        <h3>Access the server at:</h3>
+        <ul>
+            {{range .IPAddresses}}
+            <li><a href="http://{{.}}:{{$.Port}}" target="_blank">http://{{.}}:{{$.Port}}</a></li>
+            {{end}}
+        </ul>
+    </div>
+
+    <div class="upload-section">
+        <h3>Upload a File</h3>
+        <form method="post" enctype="multipart/form-data" action="/upload">
+            <div class="form-group">
+                <label for="file">Select File:</label>
+                <input type="file" id="file" name="file" required>
+            </div>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    <div>
+        <h3>Files in {{.SourceDir}}:</h3>
+        <ul>
+            {{/* Note: Listing files requires additional logic in Go if desired */}}
+            <li>Browse files at the links above</li>
+        </ul>
+    </div>
+</body>
+</html>
