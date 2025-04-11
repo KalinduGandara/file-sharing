@@ -1,0 +1,37 @@
+name: Build and Release Go App
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v1.0.0
+
+jobs:
+  build:
+    name: Build Binaries
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Build binary
+        run: |
+          mkdir -p dist
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/app-${{ matrix.goos }}-${{ matrix.goarch }}
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/app-${{ matrix.goos }}-${{ matrix.goarch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
