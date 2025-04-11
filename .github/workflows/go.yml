@@ -3,7 +3,8 @@ name: Build and Release Go App
 on:
   push:
     tags:
-      - 'v*'  # Trigger on version tags like v1.0.0
+      - 'v*'  # Auto-trigger on version tags like v1.0.0
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
 
 jobs:
   build:
@@ -24,10 +25,28 @@ jobs:
         with:
           go-version: '1.21'
 
+      - name: Get version from tag or default
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF##*/}
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="manual-$(date +%Y%m%d%H%M%S)"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Build binary
         run: |
           mkdir -p dist
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/app-${{ matrix.goos }}-${{ matrix.goarch }}
+
+      - name: Create GitHub Release (only if manual)
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          name: Release ${{ steps.get_version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v1
