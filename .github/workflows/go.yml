@@ -3,9 +3,12 @@ name: Build and Release Go App
 on:
   push:
     tags:
-      - 'v*'  # Auto-trigger on version tags like v1.0.0
-  workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
+      - 'v*'
+  workflow_dispatch:
 
+permissions:
+  contents: write
+  
 jobs:
   build:
     name: Build Binaries
@@ -41,7 +44,7 @@ jobs:
 
       - name: Create GitHub Release (only if manual)
         if: github.event_name == 'workflow_dispatch'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v1.1.0
         with:
           tag_name: ${{ steps.get_version.outputs.version }}
           name: Release ${{ steps.get_version.outputs.version }}
