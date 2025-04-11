@@ -34,11 +34,23 @@
         button:hover {
             background-color: #0056b3;
         }
-        .ip-list {
+        .ip-list, .upload-section, .file-list {
             margin-top: 20px;
         }
-        .upload-section {
-            margin-top: 20px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
         }
     </style>
 </head>
@@ -77,12 +89,34 @@
         </form>
     </div>
 
-    <div>
-        <h3>Files in {{.SourceDir}}:</h3>
-        <ul>
-            {{/* Note: Listing files requires additional logic in Go if desired */}}
-            <li>Browse files at the links above</li>
-        </ul>
+    <div class="file-list">
+        <h3>Files in {{.SourceDir}}</h3>
+        {{if .Files}}
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Last Modified</th>
+            </tr>
+            {{range .Files}}
+            <tr>
+                <td>
+                    {{if .IsDir}}
+                    <a href="/{{.RelPath}}">{{.Name}}/</a>
+                    {{else}}
+                    <a href="/{{.RelPath}}" download>{{.Name}}</a>
+                    {{end}}
+                </td>
+                <td>{{if .IsDir}}Directory{{else}}File{{end}}</td>
+                <td>{{if .IsDir}}-{{else}}{{.Size | printf "%d"}} bytes{{end}}</td>
+                <td>{{.ModTime}}</td>
+            </tr>
+            {{end}}
+        </table>
+        {{else}}
+        <p>No files found in the directory.</p>
+        {{end}}
     </div>
 </body>
 </html>
